@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class playerAnimation : MonoBehaviour
@@ -8,48 +9,41 @@ public class playerAnimation : MonoBehaviour
     public Animator playeranimator;
     
     private Rigidbody player;
+    private CapsuleCollider playerCollider;
     float Xdirection;
-    public int speed;
+    public float speed;
+    public Vector3 playerVelocity;
     public int rotationspeed;
     bool playergrounded;
     bool hasplayerjump;
-    public int jumpForce;
-    private Vector3 moveDirection = Vector3.forward;
+    public float jumpForce;
     public Vector3 startpos;
     public Vector3 endpos;
-   
+    [SerializeField] private int playerHealth;
+    public ScoreManager scoreManager;
+    public GameManager gameManager;
+
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<Rigidbody>();
+        playerCollider = GetComponent<CapsuleCollider>();
+        playerVelocity = new Vector3(player.velocity.x,player.velocity.y,speed);
+        playerHealth = 2;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Xdirection = Input.GetAxis("Horizontal");
+        //player.transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
-        player.velocity = moveDirection * speed;
+        Vector3 horizontalVel = transform.forward * speed;
+        player.velocity = new Vector3(horizontalVel.x, player.velocity.y,horizontalVel.z);
 
-        float input = moveDirection.magnitude;
+        float input = new Vector2(Xdirection,speed).magnitude;
 ;
         playeranimator.SetFloat("isrunning",input);
      
-
-        var lookDirection = moveDirection.normalized;
-        if (lookDirection.magnitude >= 0.1f)
-        {
-            var targetRotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationspeed * Time.deltaTime);
-        }
-        //if (Input.GetKeyDown(KeyCode.Space) && playergrounded)
-        //{
-        //    playergrounded = false;
-        //    playeranimator.SetBool("jump", true);
-        //    var jump = new Vector3(player.velocity.x, jumpForce, player.velocity.z);
-        //    player.AddForce(jump, ForceMode.Impulse);
-        //}
-
         if (Input.GetMouseButtonDown(0))
         {
             startpos = Input.mousePosition;   
@@ -59,7 +53,12 @@ public class playerAnimation : MonoBehaviour
             endpos = Input.mousePosition;
             Swipe();
         }
-       
+        if (player.transform.position.y < -3)
+        {
+            gameManager.GameoverUi.SetActive(true);
+        }
+        
+
     }
     public void Swipe()
     {
@@ -68,53 +67,122 @@ public class playerAnimation : MonoBehaviour
 
         if (Mathf.Abs(xdisp) > Mathf.Abs(ydisp))
         {
-            if (endpos.x - startpos.x > 0)
+            if (endpos.x - startpos.x >= 0)
             {
                 Debug.Log("swipe right");
-                player.transform.eulerAngles = new Vector3(0, 90, 0);
-                moveDirection = Quaternion.Euler(0f,90f,0f) * moveDirection;
+                transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y + 90f, 0f);
             }
             else
             {
                 Debug.Log("swipe left");
-                player.transform.eulerAngles = new Vector3(0, -90, 0);
-                moveDirection = Quaternion.Euler(0f, -90f, 0f) * moveDirection;
-
+                transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y - 90f, 0f);
+          
             }
 
         }
         else
         {
-            if (endpos.y - startpos.y > 0)
+            if (endpos.y - startpos.y >= 0)
             {
                 Debug.Log("jump");
                 if (playergrounded)
                 {
                     playergrounded = false;
                     playeranimator.SetBool("jump", true);
-                    player.velocity = new Vector3(player.velocity.x, 0f, player.velocity.z);
-                    var jump = Vector3.up * jumpForce;
-                    player.AddForce(jump, ForceMode.Impulse);
+                    player.AddForce(new Vector3(0,jumpForce,0), ForceMode.Impulse);
                 }
             }
             else
             {
                 Debug.Log("slide");
+
+                
+              
+                playeranimator.SetTrigger("sliding");
+                //StartCoroutine(test());
+
             }
         }
 
+
     }
+    //IEnumerator test()
+    //{
+    //    playerCollider.height = 0.5f;
+    //    playerCollider.center = new Vector3(0, 0.32f, 0);
+    //    yield return new WaitForSeconds(2);
+    //    playerCollider.height = 1.6f;
+    //    playerCollider.center = new Vector3(0, 1f, 0);
+    //}
+    IEnumerator playerdead()
+    {
+        playerHealth -= 1;
+        playeranimator.SetTrigger("Slip");
+        yield return new WaitForSeconds(5);
+        playerHealth = 2;
+    }
+    IEnumerator gameoverstate()
+    {
+        playeranimator.SetTrigger("Dead");
+        yield return new WaitForSeconds(2);
+        gameManager.GameoverUi.SetActive(true);
+
+    }
+
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("ground"))
         {
-            //hasplayerjump = true;
             playergrounded = true;
             playeranimator.SetBool("jump", false);
         }
-        
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            //playeranimator.SetTrigger("Dead");
+            //gameManager.GameoverUi.SetActive(true);
+            StartCoroutine(gameoverstate());
+        }
+        if (collision.gameObject.CompareTag("oil"))
+        {
+            StartCoroutine(playerdead());
+            if (playerHealth <= 0)
+            {
+                playeranimator.SetTrigger("Dead");
+                StartCoroutine(gameoverstate());
+            }
+        }
+
     }
-   
-    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("coin"))
+        { 
+            other.gameObject.SetActive(false);
+            scoreManager.playerScoreUpdate(10);
+        }
+    }
+    public void colliderAdjust()
+    {
+            playerCollider.height = 0.5f;
+            playerCollider.center = new Vector3(0, 0.32f, 0);
+    }
+    public void colliderBackToNormal()
+    {
+        playerCollider.height = 1.6f;
+        playerCollider.center = new Vector3(0, 1f, 0);
+
+    }
+    public void collAdjust()
+    {
+        playerCollider.height = 0.8f;
+        playerCollider.center = new Vector3(0, 1.32f, 0);
+    }
+    public void BackToNormal()
+    {
+        playerCollider.height = 1.8f;
+        playerCollider.center = new Vector3(0, 0.83f, 0);
+    }
+
+
 }

@@ -52,6 +52,9 @@ public class EndlessPathManager : MonoBehaviour
         Transform next = tile.transform.Find("NextSpawnPoint");
         spawnPosition = next.position;
         spawnRotation = next.rotation;
+        Debug.DrawRay(spawnPosition, Vector3.up * 5, Color.green, 5f); // Spawn location
+        Debug.DrawLine(tile.transform.position, spawnPosition, Color.red, 5f); // Difference
+
     }
 
     void DeleteOldestTile()

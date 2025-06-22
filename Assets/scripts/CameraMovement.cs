@@ -3,8 +3,8 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     public Transform target;
-    public float trailDistance = 5.0f;
-    public float heightOffset = 3.0f;
+    public float trailDistance = 3.0f;
+    public float heightOffset = 2.5f;
     public float cameraDelay = 0.02f;
 
     // Update is called once per frame

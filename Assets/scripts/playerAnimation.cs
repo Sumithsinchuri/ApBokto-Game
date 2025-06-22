@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,6 +24,16 @@ public class playerAnimation : MonoBehaviour
     public ScoreManager scoreManager;
     public GameManager gameManager;
 
+
+  
+    public float maxSpeed = 10f;
+    public float speedIncreaseRate; // How fast to ramp up
+    public float scoreThreshold;    // Score at which to start speeding up
+    //public float horizontalSpeed = 5f; // Speed for left/right movement
+    private bool shouldIncreaseSpeed = false;
+
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,15 +41,16 @@ public class playerAnimation : MonoBehaviour
         playerCollider = GetComponent<CapsuleCollider>();
         playerVelocity = new Vector3(player.velocity.x,player.velocity.y,speed);
         playerHealth = 2;
+       
     }
 
     // Update is called once per frame
     void Update()
     {
-        //player.transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        player.transform.Translate(Vector3.forward * speed * Time.deltaTime);
 
-        Vector3 horizontalVel = transform.forward * speed;
-        player.velocity = new Vector3(horizontalVel.x, player.velocity.y,horizontalVel.z);
+        //Vector3 horizontalVel = transform.forward * speed;
+        //player.velocity = new Vector3(horizontalVel.x, player.velocity.y,horizontalVel.z);
 
         float input = new Vector2(Xdirection,speed).magnitude;
 ;
@@ -57,7 +69,28 @@ public class playerAnimation : MonoBehaviour
         {
             gameManager.GameoverUi.SetActive(true);
         }
-        
+
+
+        int score = scoreManager.Score;
+        if (score >= scoreThreshold && speed < maxSpeed)
+        {
+            shouldIncreaseSpeed = true;
+        }
+
+
+        // Gradually increase speed
+        if (shouldIncreaseSpeed)
+        {
+            speed = Mathf.MoveTowards(speed, maxSpeed, speedIncreaseRate * Time.deltaTime);
+        }
+
+        // Get player input
+        //float horizontal = Input.GetAxis("Horizontal"); // A/D or Left/Right arrows or joystick
+        Vector3 horizontalVel = transform.forward * speed;
+
+        // Move the player forward
+        Vector3 moveDirection = new Vector3(horizontalVel.x,0,horizontalVel.z);
+        transform.Translate(moveDirection * Time.deltaTime, Space.World);
 
     }
     public void Swipe()
@@ -89,7 +122,8 @@ public class playerAnimation : MonoBehaviour
                 {
                     playergrounded = false;
                     playeranimator.SetBool("jump", true);
-                    player.AddForce(new Vector3(0,jumpForce,0), ForceMode.Impulse);
+                    //player.AddForce(new Vector3(0,jumpForce,0), ForceMode.Impulse);
+                    player.velocity = new Vector3(player.velocity.x, jumpForce, player.velocity.z);
                 }
             }
             else
@@ -139,6 +173,7 @@ public class playerAnimation : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Enemy"))
         {
+           
             //playeranimator.SetTrigger("Dead");
             //gameManager.GameoverUi.SetActive(true);
             StartCoroutine(gameoverstate());

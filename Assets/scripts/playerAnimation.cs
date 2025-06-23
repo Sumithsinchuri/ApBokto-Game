@@ -32,8 +32,6 @@ public class playerAnimation : MonoBehaviour
     //public float horizontalSpeed = 5f; // Speed for left/right movement
     private bool shouldIncreaseSpeed = false;
 
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -48,6 +46,9 @@ public class playerAnimation : MonoBehaviour
     void Update()
     {
         player.transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        
+
+
 
         //Vector3 horizontalVel = transform.forward * speed;
         //player.velocity = new Vector3(horizontalVel.x, player.velocity.y,horizontalVel.z);
@@ -63,6 +64,7 @@ public class playerAnimation : MonoBehaviour
         else if (Input.GetMouseButtonUp(0))
         {
             endpos = Input.mousePosition;
+          
             Swipe();
         }
         if (player.transform.position.y < -3)
@@ -84,8 +86,7 @@ public class playerAnimation : MonoBehaviour
             speed = Mathf.MoveTowards(speed, maxSpeed, speedIncreaseRate * Time.deltaTime);
         }
 
-        // Get player input
-        //float horizontal = Input.GetAxis("Horizontal"); // A/D or Left/Right arrows or joystick
+       
         Vector3 horizontalVel = transform.forward * speed;
 
         // Move the player forward
@@ -95,27 +96,31 @@ public class playerAnimation : MonoBehaviour
     }
     public void Swipe()
     {
+       
         var xdisp = endpos.x - startpos.x;
         var ydisp = endpos.y - startpos.y;
 
         if (Mathf.Abs(xdisp) > Mathf.Abs(ydisp))
         {
-            if (endpos.x - startpos.x >= 0)
+            if (xdisp >= 0)
             {
                 Debug.Log("swipe right");
-                transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y + 90f, 0f);
+               transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y + 90f, 0f);
+                
+
             }
             else
             {
                 Debug.Log("swipe left");
                 transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y - 90f, 0f);
-          
+                
+
             }
 
         }
         else
         {
-            if (endpos.y - startpos.y >= 0)
+            if (ydisp >= 0)
             {
                 Debug.Log("jump");
                 if (playergrounded)

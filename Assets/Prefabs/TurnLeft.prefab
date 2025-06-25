@@ -377,7 +377,7 @@ Transform:
   m_GameObject: {fileID: 2462433777452472972}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: -4.71, y: 0, z: 21.12}
+  m_LocalPosition: {x: -5.37, y: 0, z: 21.26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -502,9 +502,10 @@ GameObject:
   - component: {fileID: 5732782093292209740}
   - component: {fileID: 4574121757125476133}
   - component: {fileID: 7248810922930654361}
+  - component: {fileID: 5527563451461133103}
   m_Layer: 0
   m_Name: giyotine base.001
-  m_TagString: Enemy
+  m_TagString: wall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -574,6 +575,28 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &5527563451461133103
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3023160461397818361}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -3905859483507162537, guid: 25a54c8ac39a8496dac11bc706c375e0, type: 3}
 --- !u!1 &3124891662741469082
 GameObject:
   m_ObjectHideFlags: 0
@@ -1002,5 +1025,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 0.59922224}
-  m_Center: {x: 0, y: -2, z: -0.4041529}
+  m_Size: {x: 1, y: 0.9999998, z: 0.5962742}
+  m_Center: {x: 0, y: -2, z: -0.4026789}

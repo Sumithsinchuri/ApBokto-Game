@@ -9,6 +9,7 @@ TagManager:
   - obstacle
   - coin
   - oil
+  - wall
   layers:
   - Default
   - TransparentFX

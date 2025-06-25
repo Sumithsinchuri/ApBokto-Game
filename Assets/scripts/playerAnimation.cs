@@ -7,7 +7,9 @@ using UnityEngine.SceneManagement;
 
 public class playerAnimation : MonoBehaviour
 {
+    public static playerAnimation instance;
     public Animator playeranimator;
+    public bool playonce;
     
     private Rigidbody player;
     private CapsuleCollider playerCollider;
@@ -26,7 +28,7 @@ public class playerAnimation : MonoBehaviour
 
 
   
-    public float maxSpeed = 10f;
+    public float maxSpeed;
     public float speedIncreaseRate; // How fast to ramp up
     public float scoreThreshold;    // Score at which to start speeding up
     //public float horizontalSpeed = 5f; // Speed for left/right movement
@@ -35,6 +37,7 @@ public class playerAnimation : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        playonce = true;
         player = GetComponent<Rigidbody>();
         playerCollider = GetComponent<CapsuleCollider>();
         playerVelocity = new Vector3(player.velocity.x,player.velocity.y,speed);
@@ -46,12 +49,12 @@ public class playerAnimation : MonoBehaviour
     void Update()
     {
         player.transform.Translate(Vector3.forward * speed * Time.deltaTime);
-        
+
 
 
 
         //Vector3 horizontalVel = transform.forward * speed;
-        //player.velocity = new Vector3(horizontalVel.x, player.velocity.y,horizontalVel.z);
+        //player.velocity = new Vector3(horizontalVel.x, player.velocity.y, horizontalVel.z);
 
         float input = new Vector2(Xdirection,speed).magnitude;
 ;
@@ -67,9 +70,10 @@ public class playerAnimation : MonoBehaviour
           
             Swipe();
         }
-        if (player.transform.position.y < -3)
+        if (player.transform.position.y <= -3)
         {
-            gameManager.GameoverUi.SetActive(true);
+           
+            StartCoroutine(fallGameover());
         }
 
 
@@ -87,7 +91,7 @@ public class playerAnimation : MonoBehaviour
         }
 
        
-        Vector3 horizontalVel = transform.forward * speed;
+       Vector3 horizontalVel = transform.forward * speed;
 
         // Move the player forward
         Vector3 moveDirection = new Vector3(horizontalVel.x,0,horizontalVel.z);
@@ -113,8 +117,6 @@ public class playerAnimation : MonoBehaviour
             {
                 Debug.Log("swipe left");
                 transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y - 90f, 0f);
-                
-
             }
 
         }
@@ -128,18 +130,15 @@ public class playerAnimation : MonoBehaviour
                     playergrounded = false;
                     playeranimator.SetBool("jump", true);
                     //player.AddForce(new Vector3(0,jumpForce,0), ForceMode.Impulse);
+                    AudioManager.instance.jumpsound();
                     player.velocity = new Vector3(player.velocity.x, jumpForce, player.velocity.z);
                 }
             }
             else
             {
                 Debug.Log("slide");
-
-                
-              
                 playeranimator.SetTrigger("sliding");
                 //StartCoroutine(test());
-
             }
         }
 
@@ -160,13 +159,41 @@ public class playerAnimation : MonoBehaviour
         yield return new WaitForSeconds(5);
         playerHealth = 2;
     }
-    IEnumerator gameoverstate()
+
+    IEnumerator fallGameover()
     {
-        playeranimator.SetTrigger("Dead");
+        playeranimator.SetTrigger("fall");
+        if (playonce)
+        {
+            AudioManager.instance.fallingsound();
+            playonce = false;
+           
+        }
+
+        //AudioManager.instance.fallingsound();
         yield return new WaitForSeconds(2);
         gameManager.GameoverUi.SetActive(true);
-
     }
+
+
+
+    IEnumerator gameoverstate()
+    {
+        speed = 0;
+        playeranimator.SetTrigger("Dead");
+      
+        yield return new WaitForSeconds(2);
+        gameManager.GameoverUi.SetActive(true);
+    }
+
+    IEnumerator wallhit()
+    {
+        playeranimator.SetTrigger("wallhit");
+        speed = 0;
+        yield return new WaitForSeconds(2);
+        gameManager.GameoverUi.SetActive(true);
+    }
+
 
 
     private void OnCollisionEnter(Collision collision)
@@ -178,6 +205,7 @@ public class playerAnimation : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            
            
             //playeranimator.SetTrigger("Dead");
             //gameManager.GameoverUi.SetActive(true);
@@ -188,9 +216,16 @@ public class playerAnimation : MonoBehaviour
             StartCoroutine(playerdead());
             if (playerHealth <= 0)
             {
+              
+                // playeranimator.Play("Dead 0");
                 playeranimator.SetTrigger("Dead");
                 StartCoroutine(gameoverstate());
             }
+        }
+        if (collision.gameObject.CompareTag("wall"))
+        {
+          
+            StartCoroutine(wallhit());
         }
 
     }

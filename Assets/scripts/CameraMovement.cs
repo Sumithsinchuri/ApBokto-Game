@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
+    public static CameraMovement instance;
     public Transform target;
     public float trailDistance = 3.0f;
     public float heightOffset = 2.5f;

@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
 public class ScoreManager : MonoBehaviour
 {
+   
     private int PlayerScore;
     public Text score;
     private int savedScore;
@@ -15,7 +15,7 @@ public class ScoreManager : MonoBehaviour
 
     private Vector3 lastposition;
     private float totalDistance;
-    public Text scoreText;  
+    public Text scoreText;
 
     // Start is called before the first frame update
     void Start()
@@ -23,11 +23,14 @@ public class ScoreManager : MonoBehaviour
         lastposition = new Vector3(player.position.x, 0, player.position.z);
         savedScore = PlayerPrefs.GetInt("Score");
         score.text = savedScore.ToString();
-        
+
+        Score = PlayerPrefs.GetInt("scoretext");
+        scoreText.text = savedScore.ToString();
+
     }
 
     // Update is called once per frame
-   
+
 
     void Update()
     {
@@ -40,6 +43,7 @@ public class ScoreManager : MonoBehaviour
 
         Score = Mathf.FloorToInt(totalDistance * scoreMultiplier);
         scoreText.text = Score.ToString();
+
     }
 
     public void playerScoreUpdate(int points)
@@ -47,5 +51,7 @@ public class ScoreManager : MonoBehaviour
         PlayerScore += points;
         score.text = PlayerScore.ToString();
 
+
     }
 }
+

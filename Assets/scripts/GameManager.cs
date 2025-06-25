@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public GameObject homecanavas;
     public GameObject GameoverUi;
     public GameObject pauseUi;
+    public GameObject settingUi;
     public static bool isRestarting;
     
     // Start is called before the first frame update
@@ -19,6 +20,9 @@ public class GameManager : MonoBehaviour
             homecanavas.SetActive(false);
             gamecomponents.SetActive(true);
             GameoverUi.SetActive(false);
+            settingUi.SetActive(false);
+            pauseUi.SetActive(false);
+           
 
         }
         else
@@ -27,6 +31,7 @@ public class GameManager : MonoBehaviour
             gamecomponents.SetActive(false);
             GameoverUi.SetActive(false);
             pauseUi.SetActive(false);
+            settingUi.SetActive(false);
 
         }
 
@@ -41,30 +46,40 @@ public class GameManager : MonoBehaviour
     }
     public void start()
     {
+        AudioManager.instance.buttonsound();
         homecanavas.SetActive(false);
         gamecomponents.SetActive(true);
     }
     public void home()
     {
+        AudioManager.instance.buttonsound();
         isRestarting = false;
         Time.timeScale = 1.0f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-
     }
     public void restart()
     {
+        AudioManager.instance.buttonsound();
         Time.timeScale = 1.0f;
         isRestarting = true;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     public void pause()
     {
+        AudioManager.instance.buttonsound();
         pauseUi.SetActive(true);
         Time.timeScale = 0;
     }
     public void resume()
     {
+        AudioManager.instance.buttonsound();
         pauseUi.SetActive(false);
         Time.timeScale = 1f;
     }
+    public void setting()
+    {
+        AudioManager.instance.buttonsound();
+        settingUi.SetActive(true);
+    }
+  
 }
